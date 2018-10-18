@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #allImages{
+            width: 100%;
+            float: left;
+            margin-bottom: 50px;
+        }
+        #allImages >div {
+            float: left;
+            max-width: 200px;
+        }
+        #allImages img{
+            width: 100%;
+        }
+        #slider {
+            float: left;
+            width: 300px;
+        }
+        #slider img{
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+add new
+<div id="addNew">
+<input  type="file" onchange="addFile()"  accept="image/*">
+</div>
+<br><br><br>
+
+    <div id="allImages">
+
+    </div>
+
+    <div>
+        <button onclick="show_image('left')">&lt;</button>
+        <button onclick="show_image('right')">&gt;</button>
+    </div>
+    <div id="slider">
+        <img id="main-image" alt="no images " src=""/>
+    </div>
+
+
+
+</body>
+
+
+<script>
+
+
+    function show_image(direction) {
+        var size = Object.keys(localStorage).length;
+        if (direction == "left") {
+            index--;
+        } else {
+            index++;
+            index %= size;
+        }
+
+        if (index < 0) {
+            index = size - 1;
+        }
+
+        $('#main-image').attr('src', localStorage[Object.keys(localStorage)[index]]);
+        $('#main-image').attr('alt', Object.keys(localStorage)[index]);
+    }
+
+
+    function addFile() {
+        var file = document.querySelector('input[type=file]').files[0];
+        var reader = new FileReader();
+
+        reader.onloadend = function() {
+            localStorage.setItem(file.name, reader.result);
+
+            $('#addNew').html('<input  type="file" onchange="addFile()"  accept="image/*">');
+            updateImages();
+        };
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            alert('something was wrong')
+        }
+
+    }
+
+    function insertOneImage(val) {
+        $('#allImages').append('<div id="' + val + '"><img src="' + localStorage.getItem(val) + '" alt="' + val + '"><button class="remove">remove</button></div>');
+    }
+
+    function updateImages() {
+        $('#allImages').empty();
+        var images = Object.keys(localStorage);
+
+        if (!isEmpty(images)) {
+            $.each(images, function(index, value) {
+                insertOneImage(value);
+            });
+
+        }
+        if (localStorage.getItem($('#main-image').attr('alt')) == null) {
+            $('#main-image').attr('src', localStorage[Object.keys(localStorage)[0]]);
+            $('#main-image').attr('alt', Object.keys(localStorage)[0]);
+        }
+    }
+
+    function isEmpty(obj) {
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key))
+                return false;
+        }
+        return true;
+    }
+
+    var index = 0;
+
+    $('#main-image').attr('src', localStorage[Object.keys(localStorage)[index]]);
+    $('#main-image').attr('alt', Object.keys(localStorage)[index]);
+
+
+    updateImages();
+
+    $(document).on('click', '#allImages .remove', function() {
+        if (confirm('are you sure to remove this file?')) {
+            localStorage.removeItem($(this).parent().attr('id'));
+            updateImages();
+        }
+    })
+
+</script>
+</html>
